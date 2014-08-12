@@ -42,6 +42,10 @@ div.v-panel-content-rootContainer, div.rootContainer > div.v-verticallayout {
 	    margin-bottom: 0px; /* Normally -2px in table */
 	    margin-top:    0px; /* Normally -2px in table */
 	    height: 25px;       /* Not auto */
-}
+  }
+  
+  .v-table-row-highlighted-transaction {
+    background: pink;
+  }
 
 }

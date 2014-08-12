@@ -13,26 +13,73 @@ import scott.data.model.Month;
 import scott.data.model.Transaction;
 import scott.ui.monthly.model.Statistic;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 
-public class MonthlyStatisticsReport extends Panel {
+public abstract class MonthlyStatisticsReport extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private Table table;
 	private BeanItemContainer<Statistic> beanContainer;
+	private Collection<Category> categories;
 
 	public MonthlyStatisticsReport() {
 		table = new Table("Monthly Report");
 		table.setImmediate(true);
 		table.setHeight("500px");
+		table.setSelectable(true);
 		beanContainer = new BeanItemContainer<Statistic>(Statistic.class, Collections.<Statistic>emptyList());
 		table.setContainerDataSource(beanContainer);
+		table.addValueChangeListener(new Property.ValueChangeListener() {
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Statistic stat = (Statistic)event.getProperty().getValue();
+				if (stat == null) {
+					notifyCategoryChanged(null);
+				}
+				else {
+					notifyCategoryChanged(getCategory(stat));
+				}
+			}
+		});
 		setContent(table);
+	}
+	
+	protected abstract void notifyCategoryChanged(Category category);
+	
+	public Category getSelectedCategory() {
+		Statistic stat = (Statistic)table.getValue();
+		if (stat == null) {
+			return null;
+		}
+		return getCategory(stat);
+	}
+	
+	private Category getCategory(Statistic stat) {
+		for (Category cat: categories) {
+			if (cat.getName().equals( stat.getName() )) {
+				return cat;
+			}
+		}
+		return null;
+	}
+	
+	public void setSelectedCategory(Category category) {
+		for (Statistic stat: beanContainer.getItemIds()) {
+			if (stat.getName().equals(category.getName())) {
+				table.setValue(stat);
+				table.setCurrentPageFirstItemId(stat);
+				return;
+			}
+		}
 	}
 
 	public void regenerate(Month month, Collection<Transaction> transactions, Collection<Category> categories) {
+		Statistic selected = (Statistic)table.getValue();
+		this.categories = categories;
 		BigDecimal balance = month != null ? month.getStartingBalance() : null;
 		BigDecimal totalIn = new BigDecimal("0");
 		BigDecimal totalOut = new BigDecimal("0");
@@ -69,6 +116,13 @@ public class MonthlyStatisticsReport extends Panel {
 		}
 		beanContainer.removeAllItems();
 		beanContainer.addAll(statistics);
+		if (selected != null) {
+			for (Statistic stat: statistics) {
+				if (stat.getName().equals(selected.getName())) {
+					table.setValue(stat);
+				}
+			}
+		}
 	}
 
 }

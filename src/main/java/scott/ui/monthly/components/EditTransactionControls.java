@@ -67,6 +67,7 @@ public abstract class EditTransactionControls extends HorizontalLayout {
 			  }
 			  beanContainer().addBean(transaction);
 			  table().setValue(transaction);
+			  table().setCurrentPageFirstItemId(transaction);
 			}
 		});
 		add.addStyleName("transactionControlButton");

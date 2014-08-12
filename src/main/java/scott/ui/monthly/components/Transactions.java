@@ -14,7 +14,6 @@ import scott.data.model.Account;
 import scott.data.model.Category;
 import scott.data.model.Month;
 import scott.data.model.Transaction;
-import scott.data.query.QMonth;
 import scott.data.query.QTransaction;
 import scott.ui.monthly.components.Transactions;
 import scott.ui.monthly.model.MonthAndYear;
@@ -23,6 +22,8 @@ import com.smartstream.sodit.api.core.entity.EntityContext;
 import com.smartstream.sodit.server.jdbc.queryexecution.QueryResult;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.ObjectProperty;
@@ -102,6 +103,29 @@ public abstract class Transactions {
 		table.setVisibleColumns(new Object[] { "balance", "date", "amount", "category", "comment", "important" });
 		table.setTableFieldFactory(new MyTableFieldFactory(getCategories()));
 		table.setEditable(true);
+		
+		table.setCellStyleGenerator(new Table.CellStyleGenerator() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public String getStyle(Table source, Object itemId, Object propertyId) {
+				Transaction t = (Transaction)itemId;
+				if (t != null && t.getCategory() == selectedCategory()) {
+					return "highlighted-transaction";
+				}
+				return null;
+			}
+		});
+		
+		table.addValueChangeListener(new Property.ValueChangeListener(){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Transaction t = (Transaction)event.getProperty().getValue();
+				if (t != null) {
+					transactionChanged(t);
+				}
+			}			
+		});
 
         monthAndYear().add(new MonthAndYear.Listener() {
 			@Override
@@ -167,6 +191,10 @@ public abstract class Transactions {
 		vl.addComponent(etc);
 		updateEditableState();
 	}
+	
+	public void notifyCategoryChanged(Category category) {
+		table.markAsDirtyRecursive();
+	}
 
 	private BigDecimal getFinalBalance() {
 		List<Transaction> transactions = beanContainer.getItemIds();
@@ -223,6 +251,8 @@ public abstract class Transactions {
 	}
 
 	protected abstract List<Category> getCategories();
+	
+	protected abstract void transactionChanged(Transaction transaction);
 
 	protected abstract EntityContext entityContext();
 
@@ -237,6 +267,8 @@ public abstract class Transactions {
 	protected void onBeforeSave() {}
 
 	protected void contentsChanged(Collection<Transaction> transactions) {}
+	
+	protected abstract Category selectedCategory();
 
 
 	public void load(Date from, Date to) {
@@ -247,7 +279,8 @@ public abstract class Transactions {
 		qtrans.where(  qtrans.accountId().equal( account().getId() )
 				.and(  qtrans.date().greaterOrEqual(from) )
 				.and(  qtrans.date().lessOrEqual(to)  ))
-				.orderBy(qtrans.date(), true);
+				.orderBy(qtrans.date(), true)
+				.orderBy(qtrans.id(), true);
 
 		try {
 			entityContext().removeAll(Transaction.class);

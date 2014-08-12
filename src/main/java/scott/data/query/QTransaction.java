@@ -37,6 +37,10 @@ public class QTransaction extends QueryObject<Transaction> {
 	  return new QProperty<Long>(this, "account");
 	}
 
+	public QProperty<Long> id() {
+	  return new QProperty<Long>(this, "id");
+	}
+
 	public QProperty<Date> date() {
 	  return new QProperty<Date>(this, "date");
 	}

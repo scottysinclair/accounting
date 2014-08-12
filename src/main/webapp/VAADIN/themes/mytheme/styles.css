@@ -7100,3 +7100,7 @@ body .mytheme.v-app .v-app-loading {
 	margin-top: 0px;
 	height: 25px;
 }
+
+.mytheme .v-table-row-highlighted-transaction {
+	background: pink;
+}
