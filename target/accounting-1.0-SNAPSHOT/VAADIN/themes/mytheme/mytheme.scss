@@ -1,0 +1,42 @@
+/* Import the reindeer theme. */
+/* This only allows us to use the mixins defined in it and does not add any styles by itself. */
+@import "../reindeer/reindeer.scss";
+
+/* This contains all of your theme. */
+/* If somebody wants to extend the theme she will include this mixin. */
+@mixin mytheme {
+  /* Include all the styles from the reindeer theme */
+  @include reindeer;
+
+  /* Insert your theme rules here */
+
+  /* White background for the entire UI */
+  .v-ui {
+    background: white;
+  }
+
+  .monthButton {
+  	width: 100px;
+  }
+
+  .monthLabel {
+  	width: 200px;
+  	text-align: center;
+  }
+
+  .monthControls {
+    margin-bottom: 20px;
+  }
+
+  .transactionControlButton {
+  	width: 100px;
+  }
+
+  div.transactions .v-table-cell-wrapper input.v-textfield.v-widget,
+  div.transactions .v-table-cell-wrapper input.v-filterselect-input {
+	    margin-bottom: 0px; /* Normally -2px in table */
+	    margin-top:    0px; /* Normally -2px in table */
+	    height: 25px;       /* Not auto */
+}
+
+}
