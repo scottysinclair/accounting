@@ -25,6 +25,7 @@ public abstract class MonthlyStatisticsReport extends Panel {
 	private Table table;
 	private BeanItemContainer<Statistic> beanContainer;
 	private Collection<Category> categories;
+	private boolean suppressCategoryChanged = false;
 
 	public MonthlyStatisticsReport() {
 		table = new Table("Monthly Report");
@@ -36,6 +37,7 @@ public abstract class MonthlyStatisticsReport extends Panel {
 		table.addValueChangeListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
+				if (suppressCategoryChanged) return;
 				Statistic stat = (Statistic)event.getProperty().getValue();
 				if (stat == null) {
 					notifyCategoryChanged(null);
@@ -46,6 +48,10 @@ public abstract class MonthlyStatisticsReport extends Panel {
 			}
 		});
 		setContent(table);
+	}
+	
+	public void clearSelection() {
+		table.setValue(null);
 	}
 	
 	protected abstract void notifyCategoryChanged(Category category);
@@ -68,14 +74,23 @@ public abstract class MonthlyStatisticsReport extends Panel {
 	}
 	
 	public void setSelectedCategory(Category category) {
-		for (Statistic stat: beanContainer.getItemIds()) {
-			if (stat.getName().equals(category.getName())) {
-				table.setValue(stat);
-				table.setCurrentPageFirstItemId(stat);
+		suppressCategoryChanged = false;
+		try {
+			if (category == null) {
 				return;
 			}
+			for (Statistic stat: beanContainer.getItemIds()) {
+				if (stat.getName().equals(category.getName())) {
+					table.setValue(stat);
+					table.setCurrentPageFirstItemId(stat);
+					return;
+				}
+			}
 		}
-	}
+		finally {
+			suppressCategoryChanged = false;
+		}
+  }
 
 	public void regenerate(Month month, Collection<Transaction> transactions, Collection<Category> categories) {
 		Statistic selected = (Statistic)table.getValue();

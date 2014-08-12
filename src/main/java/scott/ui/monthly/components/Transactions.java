@@ -37,16 +37,29 @@ import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 public abstract class Transactions {
 	VerticalLayout vl = new VerticalLayout();
 
-	private Table table;
+	static class MyTable extends Table {
+		public MyTable(String caption) {
+			super(caption);
+		}
+
+		@Override
+		public void enableContentRefreshing(boolean refreshContent) {
+			super.enableContentRefreshing(refreshContent);
+		}
+		
+	}
+	
+	private MyTable table;
 	private EditTransactionControls etc;
 	private BeanItemContainer<Transaction> beanContainer;
 	private Set<Transaction> deleted = new HashSet<Transaction>();
-
+	
 	public Transactions() {
-		table = new Table("Transactions");
+		table = new MyTable("Transactions");
 		table.addStyleName("transactions");
 		table.setSelectable(true);
 		table.setImmediate(true);
+		table.enableContentRefreshing(true);
 
 
 		beanContainer = new BeanItemContainer<Transaction>(Transaction.class);
@@ -103,6 +116,7 @@ public abstract class Transactions {
 		table.setVisibleColumns(new Object[] { "balance", "date", "amount", "category", "comment", "important" });
 		table.setTableFieldFactory(new MyTableFieldFactory(getCategories()));
 		table.setEditable(true);
+		
 		
 		table.setCellStyleGenerator(new Table.CellStyleGenerator() {
 			private static final long serialVersionUID = 1L;
@@ -191,9 +205,12 @@ public abstract class Transactions {
 		vl.addComponent(etc);
 		updateEditableState();
 	}
-	
+		
 	public void notifyCategoryChanged(Category category) {
-		table.markAsDirtyRecursive();
+		if (category != null) {
+			table.setValue(null);
+			table.markAsDirtyRecursive();
+		}
 	}
 
 	private BigDecimal getFinalBalance() {

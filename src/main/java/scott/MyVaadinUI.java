@@ -15,6 +15,7 @@ import scott.data.model.Transaction;
 import scott.data.query.QAccount;
 import scott.data.query.QCategory;
 import scott.data.query.QMonth;
+import scott.ui.config.components.Categories;
 import scott.ui.monthly.components.MonthAndYearChooser;
 import scott.ui.monthly.components.MonthlyStatisticsReport;
 import scott.ui.monthly.components.Transactions;
@@ -43,6 +44,7 @@ public class MyVaadinUI extends UI {
 
 	private MonthAndYear monthAndYear;
 	private Transactions transactions;
+	private Categories categories;
 
 	@Override
 	protected void init(VaadinRequest request) {
@@ -118,9 +120,11 @@ public class MyVaadinUI extends UI {
 
 		monthAndYear = new MyMonthAndYear();
 
-		Panel rootPanel = new Panel();
+		TabSheet rootPanel = new TabSheet();
 		rootPanel.addStyleName("rootContainer");
 		rootPanel.setSizeUndefined();
+		
+		 
 		VerticalLayout vl = new VerticalLayout();
 
 		MonthAndYearChooser monthAndYearChooser = new MonthAndYearChooser(monthAndYear);
@@ -132,13 +136,20 @@ public class MyVaadinUI extends UI {
 
 		final Label errors = new Label("", ContentMode.HTML);
 
-		final List<Category> categories = loadCategories(entityContext);
-
 		final MonthlyStatisticsReport report = new MonthlyStatisticsReport(){
 			protected void notifyCategoryChanged(Category category) {
 				transactions.notifyCategoryChanged(category);
 			}
 		};
+		
+		this.categories = new Categories() {		
+			@Override
+			protected EntityContext entityContext() {
+				return entityContext;
+			}
+		};
+		
+		
 		transactions = new Transactions() {
 			@Override
 			protected void onBeforeSave() {
@@ -146,17 +157,18 @@ public class MyVaadinUI extends UI {
 			}
 			
 			protected void transactionChanged(Transaction transaction) {
-				report.setSelectedCategory(transaction.getCategory());
+				//report.setSelectedCategory(transaction.getCategory());
+				report.clearSelection();
 			}
 
 			@Override
 			protected void contentsChanged(Collection<Transaction> transactions) {
-				report.regenerate(monthAndYear.getMonth(), transactions, categories);
+				report.regenerate(monthAndYear.getMonth(), transactions, getCategories());
 			}
 
 			@Override
 			protected List<Category> getCategories() {
-				return categories;
+				return MyVaadinUI.this.categories.getCategories();
 			}
 
 			@Override
@@ -201,7 +213,13 @@ public class MyVaadinUI extends UI {
 		vl.addComponent(hl);
 		vl.addComponent(errors);
 
-		rootPanel.setContent(vl);
+		
+		rootPanel.addTab(vl, "Transactions");
+		
+		VerticalLayout v2 = new VerticalLayout();
+		v2.addComponent(this.categories.getComponent());
+		rootPanel.addTab(v2, "Categories");		
+		
 		setContent(rootPanel);
 
 		// Configure the error handler for the UI
@@ -323,14 +341,6 @@ public class MyVaadinUI extends UI {
 			}
 		}
 		return null;
-	}
-
-	private List<Category> loadCategories(EntityContext entityContext) {
-		try {
-			return entityContext.performQuery(new QCategory()).getList();
-		} catch (Exception x) {
-			throw new IllegalStateException("oops", x);
-		}
 	}
 
 	private Account loadOrCreateAccount(EntityContext entityContext) {
