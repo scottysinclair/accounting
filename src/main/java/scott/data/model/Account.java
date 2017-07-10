@@ -1,10 +1,35 @@
 package scott.data.model;
 
-public interface Account {
+import scott.barleydb.api.core.entity.Entity;
+import scott.barleydb.api.core.entity.ValueNode;
+import scott.barleydb.api.core.proxy.AbstractCustomEntityProxy;
 
-	Long getId();
+/**
+ * Generated from Entity Specification
+ *
+ * @author scott
+ */
+public class Account extends AbstractCustomEntityProxy {
+  private static final long serialVersionUID = 1L;
 
-	String getName();
+  private final ValueNode id;
+  private final ValueNode name;
 
-	void setName(String name);
+  public Account(Entity entity) {
+    super(entity);
+    id = entity.getChild("id", ValueNode.class, true);
+    name = entity.getChild("name", ValueNode.class, true);
+  }
+
+  public Long getId() {
+    return id.getValue();
+  }
+
+  public String getName() {
+    return name.getValue();
+  }
+
+  public void setName(String name) {
+    this.name.setValue(name);
+  }
 }

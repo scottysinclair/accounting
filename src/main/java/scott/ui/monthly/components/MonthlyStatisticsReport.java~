@@ -49,7 +49,7 @@ public abstract class MonthlyStatisticsReport extends Panel {
 		});
 
 		table.setVisibleColumns(new Object[] { "name", "count", "value"});
-		table.setHeight("850px");
+		table.setHeight("100%");
 
 		setContent(table);
 	}

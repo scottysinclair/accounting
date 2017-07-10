@@ -10,97 +10,99 @@ import scott.data.model.Month;
 
 public abstract class MonthAndYear {
 
-	public interface Listener {
-		public void changed(MonthAndYear monthAndYear);
-	}
+    public interface Listener {
+        public void changed(MonthAndYear monthAndYear);
+    }
 
-	private static String months[] = {
-			"January", "February", "March", "April", "May", "June", "July",
-			"August", "September", "October", "November", "December"
-			};
+    private static String months[] = {
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"
+            };
 
-	private List<Listener> listeners = new LinkedList<Listener>();
+    private List<Listener> listeners = new LinkedList<Listener>();
 
-	private final Calendar cal;
-	private final Calendar calTmp;
+    private final Calendar cal;
+    private final Calendar calTmp;
 
-	public MonthAndYear() {
-		cal = new GregorianCalendar();
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		calTmp = new GregorianCalendar();
-	}
+    public MonthAndYear() {
+        cal = new GregorianCalendar();
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        calTmp = new GregorianCalendar();
+    }
 
-	public abstract Month getMonth();
+    public abstract Month getMonth();
 
-	public abstract Month getPreviousMonth();
+    public abstract Month getPreviousMonth();
 
-	public abstract Month getNextMonth();
+    public abstract Month getNextMonth();
 
-	public Calendar toCalendar() {
-		Calendar c = new GregorianCalendar();
-		c.setTimeInMillis(cal.getTimeInMillis());
-		return c;
-	}
+    public abstract void notifyMonthDeleted(Month month);
 
-	public Date toDate() {
-		return cal.getTime();
-	}
+    public Calendar toCalendar() {
+        Calendar c = new GregorianCalendar();
+        c.setTimeInMillis(cal.getTimeInMillis());
+        return c;
+    }
 
-	public String getText() {
-		final int monthOfYear = cal.get(Calendar.MONTH);
-		return String.valueOf(cal.get(Calendar.YEAR)) + " " + months[ monthOfYear ];
-	}
+    public Date toDate() {
+        return cal.getTime();
+    }
 
-	public Date getStartOfMonth() {
-		calTmp.setTimeInMillis(cal.getTimeInMillis());
-		calTmp.set(Calendar.DAY_OF_MONTH, 1);
-		return calTmp.getTime();
-	}
+    public String getText() {
+        final int monthOfYear = cal.get(Calendar.MONTH);
+        return String.valueOf(cal.get(Calendar.YEAR)) + " " + months[ monthOfYear ];
+    }
 
-	public Date getStartOfPreviousMonth() {
-		calTmp.setTimeInMillis(cal.getTimeInMillis());
-		calTmp.add(Calendar.MONTH, -1);
-		calTmp.set(Calendar.DAY_OF_MONTH, 1);
-		return calTmp.getTime();
-	}
+    public Date getStartOfMonth() {
+        calTmp.setTimeInMillis(cal.getTimeInMillis());
+        calTmp.set(Calendar.DAY_OF_MONTH, 1);
+        return calTmp.getTime();
+    }
 
-	public Date getStartOfNextMonth() {
-		calTmp.setTimeInMillis(cal.getTimeInMillis());
-		calTmp.add(Calendar.MONTH, +1);
-		calTmp.set(Calendar.DAY_OF_MONTH, 1);
-		return calTmp.getTime();
-	}
+    public Date getStartOfPreviousMonth() {
+        calTmp.setTimeInMillis(cal.getTimeInMillis());
+        calTmp.add(Calendar.MONTH, -1);
+        calTmp.set(Calendar.DAY_OF_MONTH, 1);
+        return calTmp.getTime();
+    }
 
-	public Date getEndOfMonth() {
-		calTmp.setTimeInMillis(cal.getTimeInMillis());
-		calTmp.set(Calendar.DAY_OF_MONTH, 1);
-		calTmp.add(Calendar.MONTH, 1);
-		calTmp.add(Calendar.DAY_OF_YEAR, -1);
-		return calTmp.getTime();
-	}
+    public Date getStartOfNextMonth() {
+        calTmp.setTimeInMillis(cal.getTimeInMillis());
+        calTmp.add(Calendar.MONTH, +1);
+        calTmp.set(Calendar.DAY_OF_MONTH, 1);
+        return calTmp.getTime();
+    }
 
-	public void nextMonth() {
-		cal.add(Calendar.MONTH, 1);
-		notifyMonthChanged();
-	}
+    public Date getEndOfMonth() {
+        calTmp.setTimeInMillis(cal.getTimeInMillis());
+        calTmp.set(Calendar.DAY_OF_MONTH, 1);
+        calTmp.add(Calendar.MONTH, 1);
+        calTmp.add(Calendar.SECOND, -1);
+        return calTmp.getTime();
+    }
 
-	public void prevMonth() {
-		cal.add(Calendar.MONTH, -1);
-		notifyMonthChanged();
-	}
+    public void nextMonth() {
+        cal.add(Calendar.MONTH, 1);
+        notifyMonthChanged();
+    }
 
-	public void add(Listener listener) {
-		listeners.add(listener);
-	}
+    public void prevMonth() {
+        cal.add(Calendar.MONTH, -1);
+        notifyMonthChanged();
+    }
 
-	protected void notifyMonthChanged() {
-		for (Listener listener: listeners) {
-			listener.changed(this);
-		}
-	}
+    public void add(Listener listener) {
+        listeners.add(listener);
+    }
+
+    protected void notifyMonthChanged() {
+        for (Listener listener: listeners) {
+            listener.changed(this);
+        }
+    }
 
 }

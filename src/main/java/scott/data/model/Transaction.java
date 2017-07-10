@@ -1,33 +1,89 @@
 package scott.data.model;
 
-import java.math.BigDecimal;
+import scott.barleydb.api.core.entity.Entity;
+import scott.barleydb.api.core.entity.ValueNode;
+import scott.barleydb.api.core.proxy.AbstractCustomEntityProxy;
+import scott.barleydb.api.core.entity.RefNode;
+import scott.barleydb.api.core.proxy.RefNodeProxyHelper;
 import java.util.Date;
+import java.math.BigDecimal;
 
-public interface Transaction {
+/**
+ * Generated from Entity Specification
+ *
+ * @author scott
+ */
+public class Transaction extends AbstractCustomEntityProxy {
+  private static final long serialVersionUID = 1L;
 
-	Long getId();
+  private final ValueNode id;
+  private final ValueNode date;
+  private final ValueNode amount;
+  private final ValueNode comment;
+  private final ValueNode important;
+  private final RefNodeProxyHelper account;
+  private final RefNodeProxyHelper category;
 
-	Account getAccount();
+  public Transaction(Entity entity) {
+    super(entity);
+    id = entity.getChild("id", ValueNode.class, true);
+    date = entity.getChild("date", ValueNode.class, true);
+    amount = entity.getChild("amount", ValueNode.class, true);
+    comment = entity.getChild("comment", ValueNode.class, true);
+    important = entity.getChild("important", ValueNode.class, true);
+    account = new RefNodeProxyHelper(entity.getChild("account", RefNode.class, true));
+    category = new RefNodeProxyHelper(entity.getChild("category", RefNode.class, true));
+  }
 
-	void setAccount(Account account);
+  public Long getId() {
+    return id.getValue();
+  }
 
-	Date getDate();
+  public Date getDate() {
+    return date.getValue();
+  }
 
-	void setDate(Date date);
+  public void setDate(Date date) {
+    this.date.setValue(date);
+  }
 
-	BigDecimal getAmount();
+  public BigDecimal getAmount() {
+    return amount.getValue();
+  }
 
-	void setAmount(BigDecimal amount);
+  public void setAmount(BigDecimal amount) {
+    this.amount.setValue(amount);
+  }
 
-	Category getCategory();
+  public String getComment() {
+    return comment.getValue();
+  }
 
-	void setCategory(Category category);
+  public void setComment(String comment) {
+    this.comment.setValue(comment);
+  }
 
-	String getComment();
+  public Boolean getImportant() {
+    return important.getValue();
+  }
 
-	void setComment(String comment);
+  public void setImportant(Boolean important) {
+    this.important.setValue(important);
+  }
 
-	Boolean getImportant();
+  public Account getAccount() {
+    return super.getFromRefNode(account.refNode);
+  }
 
-	void setImportant(Boolean important);
+  public void setAccount(Account account) {
+    setToRefNode(this.account.refNode, account);
+  }
+
+  public Category getCategory() {
+    return super.getFromRefNode(category.refNode);
+  }
+
+  public void setCategory(Category category) {
+    setToRefNode(this.category.refNode, category);
+  }
 }

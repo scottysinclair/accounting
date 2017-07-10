@@ -1,14 +1,45 @@
 package scott.data.model;
 
-public interface Category {
-	Long getId();
+import scott.barleydb.api.core.entity.Entity;
+import scott.barleydb.api.core.entity.ValueNode;
+import scott.barleydb.api.core.proxy.AbstractCustomEntityProxy;
 
-	String getName();
-	
-	void setName(String name);
-	
-	Integer getMonthlyLimit();
+/**
+ * Generated from Entity Specification
+ *
+ * @author scott
+ */
+public class Category extends AbstractCustomEntityProxy {
+  private static final long serialVersionUID = 1L;
 
-	void setMonthlyLimit(Integer limit);
+  private final ValueNode id;
+  private final ValueNode name;
+  private final ValueNode monthlyLimit;
 
+  public Category(Entity entity) {
+    super(entity);
+    id = entity.getChild("id", ValueNode.class, true);
+    name = entity.getChild("name", ValueNode.class, true);
+    monthlyLimit = entity.getChild("monthlyLimit", ValueNode.class, true);
+  }
+
+  public Long getId() {
+    return id.getValue();
+  }
+
+  public String getName() {
+    return name.getValue();
+  }
+
+  public void setName(String name) {
+    this.name.setValue(name);
+  }
+
+  public Integer getMonthlyLimit() {
+    return monthlyLimit.getValue();
+  }
+
+  public void setMonthlyLimit(Integer monthlyLimit) {
+    this.monthlyLimit.setValue(monthlyLimit);
+  }
 }

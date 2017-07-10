@@ -10,7 +10,7 @@ public class Statistic {
 
 	private Integer count;
 
-	public Statistic(String name, BigDecimal value, Integer count) {
+	public Statistic(String name, BigDecimal value, String count) {
 		this.name = name;
 		this.value = value;
 		this.count = count;
